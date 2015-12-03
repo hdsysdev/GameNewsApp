@@ -1,0 +1,45 @@
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (malloc) failed to allocate 1508656 bytes for Chunk::new
+# Possible reasons:
+#   The system is out of physical RAM or swap space
+#   In 32 bit mode, the process size limit was hit
+# Possible solutions:
+#   Reduce memory load on the system
+#   Increase physical memory or swap space
+#   Check if swap backing store is full
+#   Use 64 bit Java on a 64 bit OS
+#   Decrease Java heap size (-Xmx/-Xms)
+#   Decrease number of Java threads
+#   Decrease Java thread stack sizes (-Xss)
+#   Set larger code cache with -XX:ReservedCodeCacheSize=
+# This output file may be truncated or incomplete.
+#
+#  Out of Memory Error (allocation.cpp:323), pid=41808, tid=42036
+#
+# JRE version: Java(TM) SE Runtime Environment (7.0_79-b15) (build 1.7.0_79-b15)
+# Java VM: Java HotSpot(TM) 64-Bit Server VM (24.79-b02 mixed mode windows-amd64 compressed oops)
+# Failed to write core dump. Minidumps are not enabled by default on client versions of Windows
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x0000000002636800):  JavaThread "C2 CompilerThread1" daemon [_thread_in_native, id=42036, stack(0x000000000b080000,0x000000000b180000)]
+
+Stack: [0x000000000b080000,0x000000000b180000]
+[error occurred during error reporting (printing stack bounds), id 0xc0000005]
+
+
+Current CompileTask:
+C2:   5962  449   !         com.android.dx.cf.code.BytecodeArray::parseInstruction (2764 bytes)
+
+
+---------------  P R O C E S S  ---------------
+
+Java Threads: ( => current thread )
+  0x000000000ac50800 JavaThread "pool-1-thread-4" [_thread_blocked, id=42164, stack(0x000000000b780000,0x000000000b880000)]
+  0x000000000ac50000 JavaThread "pool-1-thread-3" [_thread_blocked, id=42160, stack(0x000000000b680000,0x000000000b780000)]
+  0x000000000ac4f000 JavaThread "pool-1-thread-2" [_thread_blocked, id=42156, stack(0x000000000b580000,0x000000000b680000)]
+  0x000000000ac21000 JavaThread "pool-2-thread-1" [_thread_blocked, id=42152, stack(0x000000000b480000,0x000000000b580000)]
+  0x000000000abfa000 JavaThread "pool-1-thread-1" [_thread_blocked, id=42148, stack(0x000000000b380000,0x000000000b480000)]
+  0x000000000263c800 JavaThread "Service Thread" daemon [
