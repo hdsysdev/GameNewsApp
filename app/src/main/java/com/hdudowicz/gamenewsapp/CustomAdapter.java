@@ -20,8 +20,6 @@ import java.util.List;
 public class CustomAdapter extends ArrayAdapter<Message> {
     private List<Message> messageList;
     private List<Message> imageList;
-    private String title;
-    private String description;
     public int BASE_HEIGHT = 300;
 
     public CustomAdapter(Context context, int textViewResourceId, List<Message> messages, List<Message> images) {
@@ -59,8 +57,8 @@ public class CustomAdapter extends ArrayAdapter<Message> {
             TextView descriptionView = (TextView) view.findViewById(R.id.description);
             ImageView imageView = (ImageView) view.findViewById(R.id.imageView);
 
-            title = currentMessage.getTitle();
-            description = currentMessage.getDescription();
+            String title = currentMessage.getTitle();
+            String description = currentMessage.getDescription();
 
             if (descriptionView.getLineCount() >= 10) {
                 convertView.getLayoutParams().height = BASE_HEIGHT;

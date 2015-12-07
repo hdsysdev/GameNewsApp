@@ -2,7 +2,10 @@ package com.hdudowicz.gamenewsapp;
 
 import android.animation.ValueAnimator;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -38,6 +41,7 @@ public class MainActivity extends AppCompatActivity
         StrictMode.setThreadPolicy(policy);
 
         final ListView listView = (ListView) findViewById(android.R.id.list);
+        ListView selectionList = (ListView) findViewById(R.id.selection_list);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -48,10 +52,17 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        /*NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);*/
 
         getFeed.execute();
+
+        Context context = getApplicationContext();
+        Resources resources = context.getResources();
+
+        String[] options = resources.getStringArray(R.array.rss_names);
+        TypedArray icons = resources.obtainTypedArray(R.array.icon_array);
+        selectionList.setAdapter(new CustomNavAdapter(context, R.layout.list_item, options, icons));
 
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -189,17 +200,13 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camara) {
+        if (id == R.id.valve) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.gamespot) {
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.ign) {
 
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.gameinformer) {
 
         }
 
