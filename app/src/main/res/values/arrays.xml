@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="rss_names">
-        <item>Valve News</item>
-        <item>GameSpot News</item>
-        <item>IGN News</item>
+        <item>Valve</item>
+        <item>GameSpot</item>
+        <item>IGN</item>
         <item>GameInformer</item>
     </string-array>
 
@@ -13,4 +13,11 @@
         <item>http://feeds.ign.com/ign/news</item>
         <item>http://www.gameinformer.com/feeds/thefeedrss.aspx</item>
     </string-array>
+
+    <array name="icon_array">
+        <item>@drawable/valve</item>
+        <item>@drawable/gamespot</item>
+        <item>@drawable/ign</item>
+        <item>@drawable/gameinformer</item>
+    </array>
 </resources>
