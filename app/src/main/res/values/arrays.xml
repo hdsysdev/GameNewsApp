@@ -15,9 +15,9 @@
     </string-array>
 
     <array name="icon_array">
-        <item>@drawable/valve</item>
-        <item>@drawable/gamespot</item>
-        <item>@drawable/ign</item>
-        <item>@drawable/gameinformer</item>
+        <item>@drawable/android_icon</item>
+        <item>@drawable/android_icon</item>
+        <item>@drawable/android_icon</item>
+        <item>@drawable/android_icon</item>
     </array>
 </resources>

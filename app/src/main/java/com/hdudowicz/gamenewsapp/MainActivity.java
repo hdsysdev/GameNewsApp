@@ -21,9 +21,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -31,17 +34,31 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     public int BASE_HEIGHT = 300;
 
+
+    public List<String> checkedUrls = new ArrayList<>();
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        final GetFeed getFeed = new GetFeed();
+
+        final String[] url = new String[]{"http://store.steampowered.com/feeds/news.xml",
+                "http://www.gamespot.com/feeds/mashup/",
+                "http://feeds.ign.com/ign/news",
+                "http://www.gameinformer.com/feeds/thefeedrss.aspx"};
+
+        for (int i = 0; i <= 3; i++){
+            checkedUrls.add(url[i]);
+        }
+        final GetFeed getFeed = new GetFeed(checkedUrls, url);
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
         final ListView listView = (ListView) findViewById(android.R.id.list);
-        ListView selectionList = (ListView) findViewById(R.id.selection_list);
+        final ListView selectionList = (ListView) findViewById(R.id.selection_list);
+        ListView selectionListView = (ListView) findViewById(R.id.selection_list);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -52,10 +69,7 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        /*NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);*/
 
-        getFeed.execute();
 
         Context context = getApplicationContext();
         Resources resources = context.getResources();
@@ -64,6 +78,29 @@ public class MainActivity extends AppCompatActivity
         TypedArray icons = resources.obtainTypedArray(R.array.icon_array);
         selectionList.setAdapter(new CustomNavAdapter(context, R.layout.list_item, options, icons));
 
+        //Make checkbox listener that adds url position to checkedUrls
+        selectionListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                CheckBox mCheckBox = (CheckBox) findViewById(R.id.checkbox);
+
+                mCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        Log.v("USER_LOG", "Box Checked");
+                        if (isChecked) {
+                            checkedUrls.add(url[position]);
+                        } else if (!isChecked) {
+                            checkedUrls.remove(position);
+                        }
+
+                        selectionList.notify();
+                    }
+                });
+            }
+        });
+
+        getFeed.execute();
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -109,6 +146,7 @@ public class MainActivity extends AppCompatActivity
                 return false;
             }
         });
+
     }
 
     public void populate(List<Message> messages, List<Message> images) {
@@ -127,20 +165,27 @@ public class MainActivity extends AppCompatActivity
 
     private class GetFeed extends AsyncTask {
         private ProgressDialog dialog = new ProgressDialog(MainActivity.this);
-        private String[] names = getResources().getStringArray(R.array.rss_names);
-        private String[] url = getResources().getStringArray(R.array.rss_uris);
+        private String[] names = new String[]{"Valve", "GameSpot", "IGN", "GameInformer"};
+        private String[] url;
+        private List<String> checkedUrls = new ArrayList<>();
+
         public List<Message> messages;
         private List<Message> imageList;
+
+        public GetFeed(List<String> checkedUrls, String[] url) {
+            this.checkedUrls = checkedUrls;
+            this.url = url;
+        }
 
         @Override
         protected Object doInBackground(Object[] params) {
             for (int i = 0; i < names.length; i++) {
                 if (messages == null || imageList == null) {
-                    messages = new RssHandler(url[i]).parse();
-                    imageList = new RssHandler(url[i]).parseImages();
+                    messages = new RssHandler(checkedUrls.get(i)).parse();
+                    imageList = new RssHandler(checkedUrls.get(i)).parseImages();
                 } else {
-                    messages.addAll(new RssHandler(url[i]).parse());
-                    imageList.addAll(new RssHandler(url[i]).parseImages());
+                    messages.addAll(new RssHandler(checkedUrls.get(i)).parse());
+                    imageList.addAll(new RssHandler(checkedUrls.get(i)).parseImages());
                 }
             }
             return true;
