@@ -14,11 +14,10 @@ public class CustomNavAdapter extends ArrayAdapter<String>{
 
     private String[] mStrings;
     private TypedArray mIcons;
-
     private int mViewResourceId;
 
 
-    public CustomNavAdapter(Context context, int viewResourceId, String[] strings, TypedArray icons) {
+    public CustomNavAdapter(Context context, int viewResourceId, String[] strings, TypedArray icons,  String[] url) {
         super(context, viewResourceId, strings);
 
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -46,4 +45,6 @@ public class CustomNavAdapter extends ArrayAdapter<String>{
     public long getItemId(int position) {
         return position;
     }
+
+
 }
