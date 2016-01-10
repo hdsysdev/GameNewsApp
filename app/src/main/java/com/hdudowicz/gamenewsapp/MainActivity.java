@@ -21,9 +21,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -31,39 +33,90 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     public int BASE_HEIGHT = 300;
 
+    public ArrayList<String> checkedUrls = new ArrayList<>();
+    private Boolean isChanged = false;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        final GetFeed getFeed = new GetFeed();
+
+        final String[] url = new String[]{"http://store.steampowered.com/feeds/news.xml",
+                "http://www.gamespot.com/feeds/mashup/",
+                "http://feeds.ign.com/ign/news",
+                "http://www.gameinformer.com/feeds/thefeedrss.aspx"};
+
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
         final ListView listView = (ListView) findViewById(android.R.id.list);
-        ListView selectionList = (ListView) findViewById(R.id.selection_list);
+        final ListView selectionListView = (ListView) findViewById(R.id.selection_list);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
 
-        /*NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);*/
-
-        getFeed.execute();
 
         Context context = getApplicationContext();
         Resources resources = context.getResources();
 
         String[] options = resources.getStringArray(R.array.rss_names);
         TypedArray icons = resources.obtainTypedArray(R.array.icon_array);
-        selectionList.setAdapter(new CustomNavAdapter(context, R.layout.list_item, options, icons));
+        CustomNavAdapter customNavAdapter = new CustomNavAdapter(context, R.layout.list_item, options, icons, url);
+        selectionListView.setAdapter(new CustomNavAdapter(context, R.layout.list_item, options, icons, url));
+        selectionListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 
+
+        selectionListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                CheckBox mCheckbox = (CheckBox) view.findViewById(R.id.checkbox);
+                mCheckbox.toggle();
+                if (mCheckbox.isChecked()) {
+                    Log.v("LOG", "Item Deselected" + Integer.toString(position));
+                    checkedUrls.add(url[position]);
+                    Log.v("LOG", checkedUrls.toString());
+                } else if (!mCheckbox.isChecked()) {
+                    Log.v("LOG", "Item Selected" + Integer.toString(position));
+                    checkedUrls.remove(url[position]);
+                    Log.v("LOG", checkedUrls.toString());
+                }
+                isChanged = true;
+            }
+        });
+
+
+        //Re-add checkboxes to add to checkedUrls and fix bug which ignores first item in checkedUrls
+        if (checkedUrls.isEmpty()) {
+            checkedUrls.add(url[1]);
+        }
+        final GetFeed getFeed = new GetFeed(checkedUrls, url);
+
+        getFeed.execute();
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
+            /** Called when a drawer has settled in a completely closed state. */
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                if (isChanged) {
+                    new GetFeed(checkedUrls, url).execute();
+                }
+
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                isChanged = false;
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+        };
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -109,6 +162,7 @@ public class MainActivity extends AppCompatActivity
                 return false;
             }
         });
+
     }
 
     public void populate(List<Message> messages, List<Message> images) {
@@ -127,20 +181,29 @@ public class MainActivity extends AppCompatActivity
 
     private class GetFeed extends AsyncTask {
         private ProgressDialog dialog = new ProgressDialog(MainActivity.this);
-        private String[] names = getResources().getStringArray(R.array.rss_names);
-        private String[] url = getResources().getStringArray(R.array.rss_uris);
+        private String[] url;
+        private ArrayList<String> checkedUrls = new ArrayList<>();
+
+
         public List<Message> messages;
         private List<Message> imageList;
 
+        public GetFeed(ArrayList<String> checkedUrls, String[] url) {
+
+            this.checkedUrls = checkedUrls;
+            this.url = url;
+        }
+
         @Override
         protected Object doInBackground(Object[] params) {
-            for (int i = 0; i < names.length; i++) {
+
+            for (int i = 0; i < checkedUrls.size(); i++) {
                 if (messages == null || imageList == null) {
-                    messages = new RssHandler(url[i]).parse();
-                    imageList = new RssHandler(url[i]).parseImages();
+                    messages = new RssHandler(checkedUrls.get(i)).parse();
+                    imageList = new RssHandler(checkedUrls.get(i)).parseImages();
                 } else {
-                    messages.addAll(new RssHandler(url[i]).parse());
-                    imageList.addAll(new RssHandler(url[i]).parseImages());
+                    messages.addAll(new RssHandler(checkedUrls.get(i)).parse());
+                    imageList.addAll(new RssHandler(checkedUrls.get(i)).parseImages());
                 }
             }
             return true;
